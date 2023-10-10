@@ -14,7 +14,7 @@ const ScriptLogger = new Logger('ScriptLogger', 'debug')
 
 await rm('src/icons', { force: true, recursive: true })
 await mkdir('src/icons')
-await writeFile('src/index.ts', '')
+await writeFile('src/index.ts', `export * from './definitions/types.js'\n`)
 
 for (let asset of ASSETS) {
   let type, fill, weight, name, cname, fname, svg, fstat
