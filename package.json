@@ -2,7 +2,6 @@
   "author": "Dario Sechi",
   "devDependencies": {
     "@aracna/core": "^1.1.43",
-    "@microsoft/api-extractor": "^7.36.4",
     "@vitest/ui": "^0.34.2",
     "esbuild": "^0.19.2",
     "glob": "^10.3.10",
@@ -13,10 +12,15 @@
     "vitest": "^0.34.2"
   },
   "exports": {
-    "import": "./index.js",
-    "require": {
-      "default": "./index.cjs",
+    ".": {
+      "import": "./index.js",
+      "require": "./index.cjs",
       "types": "./index.d.ts"
+    },
+    "./assets/*": {
+      "import": "./assets/*.js",
+      "require": "./assets/*.cjs",
+      "types": "./assets/*.d.ts"
     }
   },
   "license": "MIT",
@@ -27,7 +31,7 @@
   "repository": "https://github.com/aracna/icons-material-symbols",
   "scripts": {
     "test": "vitest run",
-    "build": "rm -rf dist && node esbuild.mjs && yarn tsc && yarn api-extractor run --local",
+    "build": "rm -rf dist && node esbuild.mjs && yarn tsc",
     "tarball": "yarn version && cp LICENSE package.json README.md dist/. && cd dist && yarn pack",
     "deploy": "yarn test && yarn build && yarn tarball && yarn publish dist/*.tgz"
   },

@@ -2,21 +2,12 @@ import { Logger, tcp } from '@aracna/core'
 import { appendFile, mkdir, readFile, rm, stat, writeFile } from 'fs/promises'
 import { glob } from 'glob'
 
-/**
- * Constants
- */
-const ASSETS = await glob('assets/**/*.svg')
+const ScriptLogger = new Logger('ScriptLogger', 'warn')
 
-/**
- * Loggers
- */
-const ScriptLogger = new Logger('ScriptLogger', 'debug')
+await rm('src/assets', { force: true, recursive: true })
+await mkdir('src/assets')
 
-await rm('src/icons', { force: true, recursive: true })
-await mkdir('src/icons')
-await writeFile('src/index.ts', `export * from './definitions/types.js'\n`)
-
-for (let asset of ASSETS) {
+for (let asset of await glob('assets/**/*.svg')) {
   let type, fill, weight, name, cname, fname, svg, fstat
 
   switch (true) {
@@ -46,14 +37,10 @@ for (let asset of ASSETS) {
 
   ScriptLogger.debug(`The name of the constant is "${cname}"`)
 
-  fstat = await tcp(() => stat(`src/icons/${fname}.ts`), false)
-  if (fstat instanceof Error) await writeFile(`src/icons/${fname}.ts`, '')
+  fstat = await tcp(() => stat(`src/assets/${fname}.ts`), false)
+  if (fstat instanceof Error) await writeFile(`src/assets/${fname}.ts`, '')
 
-  await appendFile(`src/icons/${fname}.ts`, `export const ${cname}: string = \`${svg}\`\n`)
-
-  if (!(await readFile('src/index.ts', 'utf8')).includes(`export * from './icons/${fname}.js'`)) {
-    await appendFile('src/index.ts', `export * from './icons/${fname}.js'\n`)
-  }
+  await appendFile(`src/assets/${fname}.ts`, `export const ${cname}: string = \`${svg}\`\n`)
 
   ScriptLogger.info(`The icon "${name}" has been generated.`)
 }
