@@ -1,46 +1,70 @@
-import { Logger, tcp } from '@aracna/core'
-import { appendFile, mkdir, readFile, rm, stat, writeFile } from 'fs/promises'
-import { glob } from 'glob'
+import { Logger, getKebabCaseString } from '@aracna/core'
+import { mkdir, readFile, readdir, rm, writeFile } from 'fs/promises'
+import { cpus } from 'os'
+import Queue from 'queue'
 
-const ScriptLogger = new Logger('ScriptLogger', 'warn')
+/**
+ * Constants
+ */
+const ASSETS = await readdir('assets')
+const QUEUE = new Queue({ autostart: true, concurrency: cpus().length })
+
+/**
+ * Loggers
+ */
+const ScriptLogger = new Logger('ScriptLogger', 'info')
 
 await rm('src/assets', { force: true, recursive: true })
 await mkdir('src/assets')
 
-for (let asset of await glob('assets/**/*.svg')) {
-  let type, fill, weight, name, cname, fname, svg, fstat
+ASSETS.map((name) => {
+  QUEUE.push(async () => {
+    let types, fname, fcontent
 
-  switch (true) {
-    case asset.includes('materialsymbolsrounded'):
-      type = 'rounded'
-      break
-    case asset.includes('materialsymbolssharp'):
-      type = 'sharp'
-      break
-  }
+    types = await readdir(`assets/${name}`)
+    ScriptLogger.verbose(`The types are:`, types)
 
-  fill = asset.includes('fill1')
-  weight = asset.match(/wght[0-9]{3}/)?.[0]?.replace('wght', '') ?? 400
+    fname = getKebabCaseString(name.replace('.svg', ''))
+    fcontent = ''
 
-  name = asset
-    .replace(/[a-z0-9_]+\//g, '')
-    .replace(/_wght[0-9]+fill1_[0-9]+px.svg/, '')
-    .replace(/_wght[0-9]+_[0-9]+px.svg/, '')
-    .replace(/_fill1_[0-9]+px.svg/, '')
-    .replace(/_[0-9]+px.svg/, '')
+    await Promise.all(
+      types.map(async (type) => {
+        let svgs
 
-  ScriptLogger.debug(`The name of the asset is "${name}"`)
+        svgs = await readdir(`assets/${name}/${type}`)
+        ScriptLogger.verbose(`The svgs are:`, svgs)
 
-  cname = `ICON_MATERIAL_SYMBOLS_${name.toUpperCase()}_${type.toUpperCase()}_W${weight}${fill ? '_F' : ''}`
-  fname = name.replace(/_/g, '-')
-  svg = await readFile(asset)
+        await Promise.all(
+          svgs.map(async (svg) => {
+            let fill, os, weight, cname, content
 
-  ScriptLogger.debug(`The name of the constant is "${cname}"`)
+            fill = svg.includes('fill1')
+            os = svg.match(/(20|24)px/)?.[0]?.replace('px', '')
+            weight = svg.match(/wght[0-9]{3}/)?.[0]?.replace('wght', '') ?? 400
 
-  fstat = await tcp(() => stat(`src/assets/${fname}.ts`), false)
-  if (fstat instanceof Error) await writeFile(`src/assets/${fname}.ts`, '')
+            cname = `ICON_MATERIAL_SYMBOLS_${name.toUpperCase()}_${type.replace('materialsymbols', '').toUpperCase()}_OS${os}_W${weight}${fill ? '_F' : ''}`
+            content = await readFile(`assets/${name}/${type}/${svg}`, 'utf8')
 
-  await appendFile(`src/assets/${fname}.ts`, `export const ${cname}: string = \`${svg}\`\n`)
+            if (!content.toLowerCase().includes('viewbox')) {
+              content = content.replace('<svg', `<svg viewBox="0 0 ${os} ${os}"`)
+            }
 
-  ScriptLogger.info(`The icon "${name}" has been generated.`)
-}
+            fcontent += `export const ${cname} = \`${content}\`\n`
+          })
+        )
+      })
+    )
+
+    await writeFile(`src/assets/${fname}.ts`, fcontent)
+    ScriptLogger.info(`The file "src/assets/${fname}.ts" has been written.`)
+  })
+})
+
+QUEUE.addEventListener('end', async () => {
+  let gassets
+
+  gassets = await readdir('src/assets')
+  if (ASSETS.length !== gassets.length) return ScriptLogger.error(`The number of assets does not match.`, [ASSETS.length, gassets.length])
+
+  ScriptLogger.info(`The number of assets matches.`, [ASSETS.length, gassets.length])
+})
