@@ -33,8 +33,7 @@
   "scripts": {
     "test": "vitest run",
     "build": "rm -rf dist && node esbuild.mjs && yarn tsc",
-    "tarball": "yarn version && cp LICENSE package.json README.md dist/. && cd dist && yarn pack",
-    "deploy": "yarn test && yarn build && yarn tarball && yarn publish dist/*.tgz"
+    "deploy": "yarn test && node scripts/publish.mjs"
   },
   "sideEffects": false,
   "type": "module",
