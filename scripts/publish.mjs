@@ -25,7 +25,7 @@ const ScriptLogger = new Logger('ScriptLogger', 'info')
 for (let args of PACKAGES) {
   let name
 
-  execSync(`node scripts/generate-exports.mjs ${args} && yarn build && cp LICENSE README.md dist`, { stdio: 'inherit' })
+  execSync(`node scripts/generate-exports.mjs ${args} && pnpm build && cp LICENSE README.md dist`, { stdio: 'inherit' })
   ScriptLogger.info(`The package has been built and packaged.`)
 
   name = PACKAGE_JSON.name + '-' + getKebabCaseString(args.replace('materialsymbols', '').replace('20', 'os20').replace('24', 'os24'))
@@ -34,6 +34,6 @@ for (let args of PACKAGES) {
   await writeFile('dist/package.json', JSON.stringify({ ...PACKAGE_JSON, name }, null, 2))
   ScriptLogger.info(`The package.json file has been written.`)
 
-  execSync(`cd dist && yarn pack && yarn publish *.tgz --access public --non-interactive`, { stdio: 'inherit' })
+  execSync(`cd dist && pnpm pack && pnpm publish *.tgz --access public --non-interactive`, { stdio: 'inherit' })
   ScriptLogger.info(`The package ${name} has been packed and published.`)
 }

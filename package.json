@@ -1,16 +1,15 @@
 {
   "author": "Dario Sechi",
   "devDependencies": {
-    "@aracna/core": "^1.1.43",
-    "@vitest/ui": "^0.34.2",
-    "esbuild": "^0.19.2",
+    "@aracna/core": "^1.1.59",
+    "@vitest/ui": "^0.34.6",
+    "esbuild": "^0.19.5",
     "glob": "^10.3.10",
-    "prettier": "^3.0.2",
+    "prettier": "^3.1.0",
     "queue": "^7.0.0",
-    "tslib": "^2.6.1",
-    "typedoc": "^0.24.8",
-    "typescript": "^5.1.6",
-    "vitest": "^0.34.2"
+    "tslib": "^2.6.2",
+    "typescript": "^5.2.2",
+    "vitest": "^0.34.6"
   },
   "exports": {
     ".": {
@@ -29,11 +28,13 @@
   "module": "index.js",
   "name": "@aracna/icons-material-symbols",
   "private": false,
+  "publishConfig": {
+    "directory": "dist"
+  },
   "repository": "https://github.com/aracna/icons-material-symbols",
   "scripts": {
-    "test": "vitest run",
-    "build": "rm -rf dist && node esbuild.mjs && yarn tsc",
-    "deploy": "yarn test && node scripts/publish.mjs"
+    "build": "rm -rf dist && node esbuild.mjs && pnpm tsc",
+    "test": "vitest run"
   },
   "sideEffects": false,
   "type": "module",
