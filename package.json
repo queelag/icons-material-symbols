@@ -1,15 +1,15 @@
 {
   "author": "Dario Sechi",
   "devDependencies": {
-    "@aracna/core": "^1.1.59",
-    "@vitest/ui": "^0.34.6",
-    "esbuild": "^0.19.5",
+    "@aracna/core": "^1.1.73",
+    "@vitest/ui": "^1.1.0",
+    "esbuild": "^0.19.10",
     "glob": "^10.3.10",
-    "prettier": "^3.1.0",
+    "prettier": "^3.1.1",
     "queue": "^7.0.0",
     "tslib": "^2.6.2",
-    "typescript": "^5.2.2",
-    "vitest": "^0.34.6"
+    "typescript": "^5.3.3",
+    "vitest": "^1.1.0"
   },
   "exports": {
     ".": {
