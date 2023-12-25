@@ -34,6 +34,6 @@ for (let args of PACKAGES) {
   await writeFile('dist/package.json', JSON.stringify({ ...PACKAGE_JSON, name }, null, 2))
   ScriptLogger.info(`The package.json file has been written.`)
 
-  execSync(`cd dist && pnpm pack && pnpm publish *.tgz --access public --non-interactive`, { stdio: 'inherit' })
+  execSync(`cd dist && pnpm pack && npm publish *.tgz --access public --non-interactive`, { stdio: 'inherit' })
   ScriptLogger.info(`The package ${name} has been packed and published.`)
 }
