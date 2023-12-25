@@ -31,10 +31,6 @@
   "main": "index.cjs",
   "module": "index.js",
   "name": "@aracna/icons-material-symbols",
-  "private": false,
-  "publishConfig": {
-    "directory": "dist"
-  },
   "repository": "https://github.com/aracna/icons-material-symbols",
   "scripts": {
     "build": "rm -rf dist && node esbuild.mjs && pnpm tsc",
