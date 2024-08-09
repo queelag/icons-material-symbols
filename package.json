@@ -1,15 +1,15 @@
 {
   "author": "Dario Sechi",
   "devDependencies": {
-    "@aracna/core": "^1.1.77",
-    "@vitest/ui": "^1.1.0",
-    "esbuild": "^0.19.10",
-    "glob": "^10.3.10",
-    "prettier": "^3.1.1",
+    "@aracna/core": "^1.1.82",
+    "@vitest/ui": "^2.0.5",
+    "esbuild": "^0.23.0",
+    "glob": "^11.0.0",
+    "prettier": "^3.3.3",
     "queue": "^7.0.0",
-    "tslib": "^2.6.2",
-    "typescript": "^5.3.3",
-    "vitest": "^1.1.0"
+    "tslib": "^2.6.3",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
   },
   "engines": {
     "node": ">=16",
