@@ -103,6 +103,4 @@ for (let pkg of pkgs) {
     execSync(`pnpm pack && npm publish ./dist/${tgz} --non-interactive`, { stdio: 'inherit' })
     ScriptLogger.info(`The package ${name} has been packed and published.`)
   })
-
-  process.exit()
 }

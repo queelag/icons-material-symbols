@@ -52,5 +52,5 @@ for (let filename of filenames) {
     .join('_')
     .toUpperCase()
 
-  await appendFile(join('src', 'assets.ts'), `\nexport const ${name} = \`${svg}\``)
+  await appendFile(join('src', 'assets.ts'), `\nexport const ${name}: string = \`${svg}\``)
 }
