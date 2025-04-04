@@ -1,93 +1,56 @@
-import { Logger, getKebabCaseString } from '@aracna/core'
-import { mkdir, readFile, readdir, rm, writeFile } from 'fs/promises'
-import { cpus } from 'os'
-import Queue from 'queue'
+import { Logger } from '@aracna/core'
+import { appendFile, readdir, readFile, writeFile } from 'fs/promises'
+import { extname, join } from 'path'
 
-/**
- * Arguments
- */
-const TYPE = process.argv[2]
-const OS = process.argv[3]
-const FILL = process.argv[4] === 'fill'
-
-if (TYPE !== 'materialsymbolsrounded' && TYPE !== 'materialsymbolssharp') {
-  throw new Error(`The ${TYPE} type is not supported.`)
-}
-
-if (OS !== '20' && OS !== '24') {
-  throw new Error(`The ${OS} optical size is not supported.`)
-}
-
-/**
- * Constants
- */
-const ASSETS = await readdir('assets')
-const QUEUE = new Queue({ autostart: true, concurrency: cpus().length })
-
-/**
- * Loggers
- */
 const ScriptLogger = new Logger('ScriptLogger', 'info')
 
-await rm('src/assets', { force: true, recursive: true })
-await mkdir('src/assets')
+const family = process.argv[2]
+const fill = process.argv[3]
+const grade = process.argv[4]
+const size = process.argv[5]
+const weight = process.argv[6]
 
-ASSETS.map((name) => {
-  QUEUE.push(async () => {
-    let types, fname, fcontent
+if (!['material-symbols-rounded', 'material-symbols-sharp'].includes(family)) {
+  throw new Error(`The ${family} family is not supported. Try with material-symbols-rounded and material-symbols-sharp.`)
+}
 
-    types = await readdir(`assets/${name}`)
-    ScriptLogger.verbose(`The types are:`, types)
+if (!['0', '1'].includes(fill)) {
+  throw new Error(`The ${fill} fill is not supported. Try with 0 and 1.`)
+}
 
-    fname = getKebabCaseString(name.replace('.svg', ''))
-    fcontent = ''
+if (!['-25', '0', '200'].includes(grade)) {
+  throw new Error(`The ${grade} grade is not supported. Try with -25, 0 and 200.`)
+}
 
-    await Promise.all(
-      types.map(async (type) => {
-        let svgs
+if (!['20', '24', '40', '48'].includes(size)) {
+  throw new Error(`The ${size} size is not supported. Try with 20, 24, 40 and 48.`)
+}
 
-        if (TYPE !== type) {
-          return
-        }
+if (!['100', '200', '300', '400', '500', '600', '700'].includes(weight)) {
+  throw new Error(`The ${weight} weight is not supported. Try with 100, 200, 300, 400, 500, 600 and 700.`)
+}
 
-        svgs = await readdir(`assets/${name}/${type}`)
-        ScriptLogger.verbose(`The svgs are:`, svgs)
+const dir = join('assets', family, [fill, grade, size, weight].join('_'))
+const filenames = await readdir(dir)
 
-        await Promise.all(
-          svgs.map(async (svg) => {
-            let fill, os, weight, cname, content
+await writeFile(join('src', 'assets.ts'), '')
 
-            fill = svg.includes('fill1')
-            os = svg.match(/(20|24)px/)?.[0]?.replace('px', '')
-            weight = svg.match(/wght[0-9]{3}/)?.[0]?.replace('wght', '') ?? 400
+for (let filename of filenames) {
+  let svg, name
 
-            if (FILL !== fill || OS !== os) {
-              return
-            }
+  svg = await readFile(join(dir, filename), 'utf8')
 
-            cname = `ICON_MS_${name.toUpperCase()}_W${weight}`
-            content = await readFile(`assets/${name}/${type}/${svg}`, 'utf8')
+  name = [
+    'icon_ms',
+    filename.replace(extname(filename), ''),
+    fill === '1' ? 'fill' : '',
+    grade === '-25' ? 'GN25' : grade === '0' ? '' : 'G200',
+    `S${size}`,
+    `W${weight}`
+  ]
+    .filter(Boolean)
+    .join('_')
+    .toUpperCase()
 
-            if (!content.toLowerCase().includes('viewbox')) {
-              content = content.replace('<svg', `<svg viewBox="0 0 ${os} ${os}"`)
-            }
-
-            fcontent += `export const ${cname} = \`${content}\`\n`
-          })
-        )
-      })
-    )
-
-    await writeFile(`src/assets/${fname}.ts`, fcontent)
-    ScriptLogger.info(`The file "src/assets/${fname}.ts" has been written.`)
-  })
-})
-
-QUEUE.addEventListener('end', async () => {
-  let gassets
-
-  gassets = await readdir('src/assets')
-  if (ASSETS.length !== gassets.length) return ScriptLogger.error(`The number of assets does not match.`, [ASSETS.length, gassets.length])
-
-  ScriptLogger.info(`The number of assets matches.`, [ASSETS.length, gassets.length])
-})
+  await appendFile(join('src', 'assets.ts'), `\nexport const ${name} = \`${svg}\``)
+}

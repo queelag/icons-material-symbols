@@ -8,7 +8,6 @@
     "fontkit": "^2.0.4",
     "glob": "^11.0.1",
     "prettier": "^3.5.3",
-    "queue": "^7.0.0",
     "tslib": "^2.8.1",
     "typescript": "^5.8.2",
     "vitest": "^3.1.1"
@@ -18,29 +17,25 @@
     "pnpm": ">=8"
   },
   "exports": {
-    ".": {
-      "import": "./index.js",
-      "require": "./index.cjs",
-      "types": "./index.d.ts"
-    },
-    "./assets/*": {
-      "import": "./assets/*.js",
-      "require": "./assets/*.cjs",
-      "types": "./assets/*.d.ts"
-    }
+    "types": "./index.d.ts",
+    "import": "./index.js",
+    "require": "./index.cjs"
   },
   "license": "MIT",
   "main": "index.cjs",
   "module": "index.js",
-  "name": "@aracna/icons-material-symbols",
+  "name": "@aracna-icons/material-symbols",
   "packageManager": "pnpm@9.7.0",
+  "publishConfig": {
+    "access": "public",
+    "directory": "dist"
+  },
   "repository": "https://github.com/queelag/icons-material-symbols",
   "scripts": {
-    "build": "node esbuild.mjs && pnpm tsc",
     "test": "vitest run"
   },
   "sideEffects": false,
   "type": "module",
   "types": "index.d.ts",
-  "version": "1.0.7"
+  "version": "1.0.1"
 }

@@ -3,6 +3,6 @@ coverage
 declarations
 dist
 node_modules
-src/assets
 
 .DS_Store
+src/assets.ts
