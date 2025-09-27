@@ -1,31 +1,33 @@
-import { cloneObject, isInstanceOf, tcp, wfp } from '@aracna/core'
-import { execSync } from 'child_process'
-import { lstat, rm, writeFile } from 'fs/promises'
+import { DeferredPromise } from '@aracna/core'
+import { exec } from 'child_process'
 import tsconfig from '../../tsconfig.json' with { type: 'json' }
 import { getAssetsFileName } from './get-assets-file-name.mjs'
 import { getDistFolderName } from './get-dist-folder-name.mjs'
 
 export async function emitDeclarations(config) {
-  try {
-    let clone
+  let afn, dfn, args, promise, child
 
-    clone = cloneObject(tsconfig, { deep: true })
-    clone.compilerOptions.outDir = getDistFolderName(config)
-    clone.include = ['src/definitions', getAssetsFileName(config), 'src/index.ts']
+  afn = getAssetsFileName(config)
+  dfn = getDistFolderName(config)
 
-    await wfp(async () => isInstanceOf(await tcp(() => lstat('tsconfig.lock'), false), Error))
+  args = [
+    /** */
+    ...Object.entries(tsconfig.compilerOptions).map(([key, value]) => `--${key} ${value === true ? '' : value}`.trim()),
+    `--outDir ${dfn}`
+  ].join(' ')
 
-    await writeFile('tsconfig.lock', '')
-    await writeFile('tsconfig.json', JSON.stringify(clone, null, 2))
+  promise = new DeferredPromise()
 
-    execSync('npm exec tsc', { stdio: 'inherit' })
+  child = exec(`pnpm tsc ${afn} src/definitions/*.ts src/index.ts ${args}`)
 
-    delete clone.compilerOptions.outDir
-    delete clone.include
+  child.on('close', promise.resolve)
+  child.on('disconnect', promise.resolve)
+  child.on('error', promise.reject)
+  child.on('exit', promise.resolve)
+  child.on('message', console.log)
 
-    await writeFile('tsconfig.json', JSON.stringify(tsconfig, null, 2))
-    await rm('tsconfig.lock', { force: true })
-  } catch (e) {
-    return e
-  }
+  child.stderr.pipe(process.stderr)
+  child.stdout.pipe(process.stdout)
+
+  return promise.instance
 }

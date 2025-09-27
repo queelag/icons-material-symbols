@@ -1,4 +1,5 @@
 import { Queue } from '@aracna/core'
+import EventEmitter from 'events'
 import { rm } from 'fs/promises'
 import { cpus } from 'os'
 import { bundle } from './fns/bundle.mjs'
@@ -75,6 +76,8 @@ const configs = [
   { family: 'material-symbols-rounded', fill: 1, grade: 0, size: 48, weight: 600 },
   { family: 'material-symbols-rounded', fill: 1, grade: 0, size: 48, weight: 700 }
 ]
+
+EventEmitter.setMaxListeners(configs.length * 2)
 
 const queue = new Queue({ concurrency: cpus().length / 2 })
 

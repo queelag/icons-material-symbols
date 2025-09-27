@@ -34,6 +34,8 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "download:assets": "node scripts/download-assets.mjs",
+    "prepublish": "exit 1",
+    "publish:all": "node scripts/publish.mjs",
     "test": "vitest run"
   },
   "sideEffects": false,
