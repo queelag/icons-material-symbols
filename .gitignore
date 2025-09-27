@@ -3,6 +3,7 @@ coverage
 declarations
 dist
 node_modules
+packages/@aracna/core
+src/assets
 
 .DS_Store
-src/assets.ts

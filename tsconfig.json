@@ -5,9 +5,7 @@
     "emitDeclarationOnly": true,
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "outDir": "dist",
     "strict": true,
     "target": "ESNext"
-  },
-  "include": ["src"]
+  }
 }

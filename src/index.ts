@@ -1,2 +1,1 @@
-export * from './assets.js'
-export * from './definitions/types.js'
+export type * from './definitions/types.js'

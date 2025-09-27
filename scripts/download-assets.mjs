@@ -4,11 +4,21 @@ import { Stats } from 'fs'
 import { lstat, mkdir, writeFile } from 'fs/promises'
 import { cpus } from 'os'
 import { join } from 'path'
-import versions from './assets-versions.json' with { type: 'json' }
 
 const FontsGoogle = new RestAPI('http://fonts.google.com/')
 const FontsGoogleAPIs = new RestAPI('http://fonts.googleapis.com/')
 const ScriptLogger = new Logger('script', 'verbose')
+
+async function getVersions() {
+  let response
+
+  response = await Fetch.get('https://raw.githubusercontent.com/google/material-design-icons/refs/heads/master/update/current_versions.json', {
+    decode: { type: 'json' }
+  })
+  if (response instanceof Error) throw response
+
+  return response.data
+}
 
 async function getMetadata() {
   let metadata
@@ -92,10 +102,11 @@ function isGlyphBlacklisted(glyph) {
   }
 }
 
-function isGlyphUnknown(glyph) {
+function isGlyphUnknown(versions, glyph) {
   return !hasObjectProperty(versions, `symbols::${glyph}`)
 }
 
+const versions = await getVersions()
 const metadata = await getMetadata()
 const families = metadata.families.filter((family) => family.toLowerCase().startsWith('material symbols') && !family.toLowerCase().includes('outlined'))
 const queue = new Queue({ autostart: true, concurrency: cpus().length })
@@ -134,7 +145,7 @@ for (let family of families) {
                   continue
                 }
 
-                if (isGlyphUnknown(name)) {
+                if (isGlyphUnknown(versions, name)) {
                   ScriptLogger.error(family, `The symbol ${name} is unknown.`, [fill, grade, size, weight])
                   continue
                 }
