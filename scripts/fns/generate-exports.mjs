@@ -39,8 +39,8 @@ export async function generateExports(config) {
       name = [
         'icon_ms',
         filename.replace(extname(filename), ''),
-        fill === '1' ? 'fill' : '',
-        grade === '-25' ? 'GN25' : grade === '0' ? '' : 'G200',
+        fill === 1 ? 'fill' : '',
+        grade === -25 ? 'GN25' : grade === 0 ? '' : 'G200',
         `S${size}`,
         `W${weight}`
       ]
