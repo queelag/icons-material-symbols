@@ -1,5 +1,6 @@
 import { build } from 'esbuild'
-import { join } from 'path'
+import { writeFile } from 'fs/promises'
+import { basename, extname, join } from 'path'
 import { getAssetsFileName } from './get-assets-file-name.mjs'
 import { getDistFolderName } from './get-dist-folder-name.mjs'
 
@@ -13,7 +14,10 @@ const options = {
 }
 
 export async function bundle(config) {
-  let outdir = getDistFolderName(config)
+  let afn, dfn
+
+  afn = getAssetsFileName(config)
+  dfn = getDistFolderName(config)
 
   await Promise.all([
     /**
@@ -21,9 +25,9 @@ export async function bundle(config) {
      */
     build({
       ...options,
-      entryPoints: ['src/definitions/types.ts', getAssetsFileName(config), 'src/index.ts'],
+      entryPoints: ['src/definitions/types.ts', afn, 'src/index.ts'],
       format: 'esm',
-      outdir
+      outdir: dfn
     }),
     /**
      * CJS
@@ -31,9 +35,11 @@ export async function bundle(config) {
     build({
       ...options,
       bundle: true,
-      entryPoints: ['src/index.ts'],
+      entryPoints: [afn],
       format: 'cjs',
-      outfile: join(outdir, 'index.cjs')
+      outfile: join(dfn, 'index.cjs')
     })
   ]).catch(() => process.exit(1))
+
+  await writeFile(join(dfn, 'index.js'), `export * from './assets/${basename(afn).replace(extname(afn), '.js')}'\n`)
 }
