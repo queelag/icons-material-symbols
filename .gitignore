@@ -4,7 +4,7 @@ declarations
 dist
 node_modules
 packages/@aracna/core
-src/assets
+src/assets/*.ts
 tmp
 
 .DS_Store
