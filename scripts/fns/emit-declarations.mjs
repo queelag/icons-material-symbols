@@ -15,7 +15,8 @@ export async function emitDeclarations(config) {
   args = [
     /** */
     ...Object.entries(tsconfig.compilerOptions).map(([key, value]) => `--${key} ${value === true ? '' : value}`.trim()),
-    `--outDir ${dfn}`
+    `--outDir ${dfn}`,
+    `--ignoreConfig`
   ].join(' ')
 
   promise = new DeferredPromise()

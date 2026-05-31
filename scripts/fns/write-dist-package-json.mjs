@@ -11,6 +11,7 @@ export async function writeDistPackageJSON(config) {
   delete clone.devDependencies
   delete clone.engines
   delete clone.packageManager
+  delete clone.prettier
   delete clone.publishConfig
   delete clone.scripts
 
